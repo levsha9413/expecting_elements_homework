@@ -19,7 +19,7 @@ def pytest_addoption(parser):
     parser.addoption("--url", default="https://demo.opencart.com/")
 
 
-@pytest.fixture  # делаем для url отдельную фикстуру, чтобы передавать как отдельный аргумент
+@pytest.fixture
 def url(request):
     url = request.config.getoption("--url")
     return url
@@ -27,25 +27,23 @@ def url(request):
 
 @pytest.fixture(scope="session")
 def browser(request):
-    _browser = request.config.getoption("--browser")  # _ добавляем для отличия от имени фикстуры
-    headless = request.config.getoption("--headless")
-    maximized = request.config.getoption("--maximized")
+    _browser = request.config.getoption("--browser")
 
     if _browser == "chrome":
         driver = webdriver.Chrome(
-            executable_path=f"{DRIVERS}/chromedriver")  # создаем экземпляр драйвера, для этого нужно либо указать путь до драйвера, либо добавить в PATH
+            executable_path=f"{DRIVERS}/chromedriver")
     elif _browser == "opera":
         driver = webdriver.Opera(executable_path=f"{DRIVERS}/operadriver")
     elif _browser == "firefox":
         driver = webdriver.Firefox(
-            executable_path=f"{DRIVERS}/geckodriver")  # без ecutebel_path= chrome запускается, но firefox и opera - нет
+            executable_path=f"{DRIVERS}/geckodriver")
 
-    def final():  # добавляем финалайзер, чтобы браузер закрывался после теста (chrome сам закрывается, отсальные - нет)
+    def final():
         driver.quit()
 
     request.addfinalizer(final)
 
-    return driver  # return ставим после финалайзера, иначе финалайзер не выполнится
+    return driver
 
 
 def get_page(page_name):  # функция для передачи одной из страниц по полученному параметру
