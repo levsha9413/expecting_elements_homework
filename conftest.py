@@ -3,6 +3,11 @@ from selenium import webdriver
 import os
 from page_objects.LoginAdminPage import LoginAdminPage
 from page_objects.HomePage import HomePage
+from page_objects.ProductPage import ProductPage
+from page_objects.CatalogPage import CatalogPage
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.wait import WebDriverWait
 
 DRIVERS = os.path.expanduser("~/qa/drivers")
 
@@ -43,12 +48,24 @@ def browser(request):
     return driver  # return ставим после финалайзера, иначе финалайзер не выполнится
 
 
-def get_page(page_name):
+def get_page(page_name):  # функция для передачи одной из страниц по полученному параметру
     page = None
     if page_name == 'admin_page':
         page = LoginAdminPage
     elif page_name == 'home_page':
         page = HomePage
+    elif page_name == 'product_page':
+        page = ProductPage
+    elif page_name == 'catalog_page':
+        page = CatalogPage
     else:
         pass
     return page
+
+
+def find_element_with_wait(locator, selector, driver, timeout=5):
+    # кастомный поиск элемента с ожидаением по существованию элемента
+    try:
+        WebDriverWait(driver, timeout).until(EC.presence_of_element_located((locator, selector)))
+    except TimeoutException:
+        raise AssertionError("Не найден элемент с селектором: {}".format(selector))
